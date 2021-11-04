@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+main
+gitme-shelter
+
 # Test binary, built with `go test -c`
 *.test
 
