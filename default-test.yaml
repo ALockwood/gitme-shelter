@@ -1,0 +1,6 @@
+s3Bucket: "s3://demo-bucket/demo-obj"
+githubRepo:
+  - name: DemoRepo1
+    uri: https://github.com/ALockwood/GitQuick4Bash.git
+  - name: Demo2
+    uri: https://github.com/ALockwood/GitQuick.git

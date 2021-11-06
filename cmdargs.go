@@ -7,12 +7,7 @@ import (
 	"strings"
 )
 
-var (
-	cfg    = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
-	dryrun = flag.Bool("dryrun", false, "Process config and check access for repo(s) and storage, but don't perform backup(s).")
-)
-
-func getFlags() error {
+func parseFlags() error {
 	flag.Parse()
 
 	fmt.Println("Config file name: ", *cfg)
