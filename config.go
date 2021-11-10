@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
-	"log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -15,16 +15,30 @@ type Config struct {
 	} `yaml:"githubRepo"`
 }
 
-func parseConfig(cfgFile string) (*Config, error) {
+func loadConfig(cfgFile string) (*Config, error) {
+	//Parse command line args
+	err := parseFlags()
+	if err != nil {
+		return nil, err
+	}
+
 	var cfg Config
 	cfgData, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
-		log.Fatal("failed to locate and/or read config file")
+		return nil, errors.New("failed to locate and/or read config file")
 	}
 
 	err = yaml.Unmarshal(cfgData, &cfg)
 	if err != nil {
-		log.Fatal("failed to parse config file")
+		return nil, err
+	}
+
+	if stringIsNilOrEmpty(cfg.S3Bucket) {
+		return nil, errors.New("failed to load S3 bucket")
+	}
+
+	if len(cfg.GithubRepo) == 0 {
+		return nil, errors.New("failed to load Github repo(s)")
 	}
 
 	return &cfg, nil

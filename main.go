@@ -1,29 +1,24 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"log"
-)
-
-var (
-	cfg    = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
-	dryrun = flag.Bool("dryrun", false, "Process config and check access for repo(s) and storage, but don't perform backup(s).")
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	//Check command line args
-	err := parseFlags()
+	initLogger()
+	//Parse command args + env vars, load config data
+	conf, err := loadConfig("default-test.yaml")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Failed to parse config.")
 	}
+	log.Info().Msgf("%+v", *conf)
 
-	//Load config
-	conf, err := parseConfig("default-test.yaml")
+	//Test write access to temp working dir by creating it
+	tmpdir, err := createWorkingDir()
 	if err != nil {
-		log.Fatal("failed to parse config")
+		log.Fatal().Err(err).Msg("Failed to create temp working dir. Err:")
 	}
-	fmt.Println(conf)
+	log.Info().Msg("Working dir: " + tmpdir)
 
 	//Validate S3 access
 	//Main Loop
