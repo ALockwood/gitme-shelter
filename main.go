@@ -11,14 +11,14 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config.")
 	}
-	log.Info().Msgf("%+v", *conf)
+	log.Debug().Msgf("%+v", *conf)
 
 	//Test write access to temp working dir by creating it
 	tmpdir, err := createWorkingDir()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create temp working dir. Err:")
 	}
-	log.Info().Msg("Working dir: " + tmpdir)
+	log.Info().Msgf("Running with working dir %s", tmpdir)
 
 	//Validate S3 access
 	//Main Loop
@@ -27,4 +27,10 @@ func main() {
 	//	do git bundle
 	//	compress
 	//	upload to S3
+
+	//remove working dir
+	removeWorkingDir(tmpdir)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to remove working dir!")
+	}
 }
