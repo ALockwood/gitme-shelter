@@ -15,6 +15,16 @@ type Config struct {
 	} `yaml:"githubRepo"`
 }
 
+type Credentials struct {
+	GithubToken        string
+	AwsAccessKey       string
+	AwsSecretAccessKey string
+}
+
+const envGithub string = "GITHUB_ACCESS_TOKEN"
+const envAwsAccessKey string = "AWS_ACCESS_KEY_ID"
+const envAwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
+
 func loadConfig(cfgFile string) (*Config, error) {
 	//Parse command line args
 	err := parseFlags()
@@ -39,6 +49,21 @@ func loadConfig(cfgFile string) (*Config, error) {
 
 	if len(cfg.GithubRepo) == 0 {
 		return nil, errors.New("failed to load Github repo(s)")
+	}
+
+	cred := Credentials{
+		GithubToken:        getEnv(envGithub, ""),
+		AwsAccessKey:       getEnv(envAwsAccessKey, ""),
+		AwsSecretAccessKey: getEnv(envAwsSecretAccessKey, "")}
+
+	if stringIsNilOrEmpty(cred.GithubToken) {
+		return nil, errors.New(envGithub + " env var empty or unset")
+	}
+	if stringIsNilOrEmpty(cred.AwsAccessKey) {
+		return nil, errors.New(envAwsAccessKey + " env var empty or unset")
+	}
+	if stringIsNilOrEmpty(cred.AwsSecretAccessKey) {
+		return nil, errors.New(envAwsSecretAccessKey + " env var empty or unset")
 	}
 
 	return &cfg, nil
