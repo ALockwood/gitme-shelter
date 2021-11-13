@@ -20,6 +20,9 @@ func main() {
 	}
 	log.Info().Msgf("Running with working dir %s", tmpdir)
 
+	gb := newGitBundler(conf, tmpdir)
+	log.Debug().Msg(gb.gitPath)
+	gb.getBundles()
 	//Validate S3 access
 	//Main Loop
 	//	Validate access to git repo
@@ -29,8 +32,8 @@ func main() {
 	//	upload to S3
 
 	//remove working dir
-	removeWorkingDir(tmpdir)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to remove working dir!")
-	}
+	// removeWorkingDir(tmpdir)
+	// if err != nil {
+	// 	log.Fatal().Err(err).Msg("Failed to remove working dir!")
+	// }
 }

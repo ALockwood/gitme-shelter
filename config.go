@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -55,16 +56,17 @@ func loadConfig(cfgFile string) (*Config, error) {
 		GithubToken:        getEnv(envGithub, ""),
 		AwsAccessKey:       getEnv(envAwsAccessKey, ""),
 		AwsSecretAccessKey: getEnv(envAwsSecretAccessKey, "")}
-
-	if stringIsNilOrEmpty(cred.GithubToken) {
-		return nil, errors.New(envGithub + " env var empty or unset")
-	}
-	if stringIsNilOrEmpty(cred.AwsAccessKey) {
-		return nil, errors.New(envAwsAccessKey + " env var empty or unset")
-	}
-	if stringIsNilOrEmpty(cred.AwsSecretAccessKey) {
-		return nil, errors.New(envAwsSecretAccessKey + " env var empty or unset")
-	}
-
+	log.Debug().Msgf("%+v", cred)
+	/*
+		if stringIsNilOrEmpty(cred.GithubToken) {
+			return nil, errors.New(envGithub + " env var empty or unset")
+		}
+		if stringIsNilOrEmpty(cred.AwsAccessKey) {
+			return nil, errors.New(envAwsAccessKey + " env var empty or unset")
+		}
+		if stringIsNilOrEmpty(cred.AwsSecretAccessKey) {
+			return nil, errors.New(envAwsSecretAccessKey + " env var empty or unset")
+		}
+	*/
 	return &cfg, nil
 }
