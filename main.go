@@ -7,7 +7,7 @@ import (
 func main() {
 	initLogger()
 	//Parse command args + env vars, load config data
-	conf, err := loadConfig("default-test.yaml")
+	conf, err := loadConfig()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config.")
 	}
@@ -21,19 +21,14 @@ func main() {
 	log.Info().Msgf("Running with working dir %s", tmpdir)
 
 	gb := newGitBundler(conf, tmpdir)
-	log.Debug().Msg(gb.gitPath)
-	gb.getBundles()
-	//Validate S3 access
-	//Main Loop
-	//	Validate access to git repo
-	//	check/create temp dir
-	//	do git bundle
-	//	compress
+	gb.makeBundles()
+
 	//	upload to S3
+	//TODO
 
 	//remove working dir
-	// removeWorkingDir(tmpdir)
-	// if err != nil {
-	// 	log.Fatal().Err(err).Msg("Failed to remove working dir!")
-	// }
+	removeWorkingDir(tmpdir)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to remove working dir!")
+	}
 }

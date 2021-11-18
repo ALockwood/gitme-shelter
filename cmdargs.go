@@ -8,17 +8,15 @@ import (
 )
 
 var (
-	cfg    = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
-	dryrun = flag.Bool("dryrun", false, "Process config and check access for repo(s) and storage, but don't perform backup(s).")
+	configFile = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
 )
 
 func parseFlags() error {
 	flag.Parse()
 
-	log.Info().Msg("Config file name: " + *cfg)
-	log.Info().Msgf("Dry run?: %t", *dryrun)
+	log.Info().Msg("Config file name: " + *configFile)
 
-	if stringIsNilOrEmpty(*cfg) {
+	if stringIsNilOrEmpty(*configFile) {
 		return errors.New("cfg cannot be empty")
 	}
 

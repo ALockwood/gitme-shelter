@@ -9,24 +9,23 @@ import (
 )
 
 type Config struct {
-	S3Bucket   string `yaml:"s3Bucket"`
-	GithubRepo []struct {
-		Name string `yaml:"name"`
-		URI  string `yaml:"uri"`
-	} `yaml:"githubRepo"`
+	S3Bucket   string       `yaml:"s3Bucket"`
+	GithubRepo []githubRepo `yaml:"githubRepo"`
 }
 
 type Credentials struct {
+	GithubUser         string
 	GithubToken        string
 	AwsAccessKey       string
 	AwsSecretAccessKey string
 }
 
-const envGithub string = "GITHUB_ACCESS_TOKEN"
+const envGithubName string = "GITHUB_USERNAME"
+const envGithubToken string = "GITHUB_ACCESS_TOKEN"
 const envAwsAccessKey string = "AWS_ACCESS_KEY_ID"
 const envAwsSecretAccessKey = "AWS_SECRET_ACCESS_KEY"
 
-func loadConfig(cfgFile string) (*Config, error) {
+func loadConfig() (*Config, error) {
 	//Parse command line args
 	err := parseFlags()
 	if err != nil {
@@ -34,7 +33,7 @@ func loadConfig(cfgFile string) (*Config, error) {
 	}
 
 	var cfg Config
-	cfgData, err := ioutil.ReadFile(cfgFile)
+	cfgData, err := ioutil.ReadFile(*configFile)
 	if err != nil {
 		return nil, errors.New("failed to locate and/or read config file")
 	}
@@ -53,20 +52,24 @@ func loadConfig(cfgFile string) (*Config, error) {
 	}
 
 	cred := Credentials{
-		GithubToken:        getEnv(envGithub, ""),
+		GithubUser:         getEnv(envGithubName, ""),
+		GithubToken:        getEnv(envGithubToken, ""),
 		AwsAccessKey:       getEnv(envAwsAccessKey, ""),
 		AwsSecretAccessKey: getEnv(envAwsSecretAccessKey, "")}
 	log.Debug().Msgf("%+v", cred)
-	/*
-		if stringIsNilOrEmpty(cred.GithubToken) {
-			return nil, errors.New(envGithub + " env var empty or unset")
-		}
-		if stringIsNilOrEmpty(cred.AwsAccessKey) {
-			return nil, errors.New(envAwsAccessKey + " env var empty or unset")
-		}
-		if stringIsNilOrEmpty(cred.AwsSecretAccessKey) {
-			return nil, errors.New(envAwsSecretAccessKey + " env var empty or unset")
-		}
-	*/
+
+	if stringIsNilOrEmpty(cred.GithubUser) {
+		return nil, errors.New(envGithubName + " env var empty or unset")
+	}
+	if stringIsNilOrEmpty(cred.GithubToken) {
+		return nil, errors.New(envGithubToken + " env var empty or unset")
+	}
+	if stringIsNilOrEmpty(cred.AwsAccessKey) {
+		return nil, errors.New(envAwsAccessKey + " env var empty or unset")
+	}
+	if stringIsNilOrEmpty(cred.AwsSecretAccessKey) {
+		return nil, errors.New(envAwsSecretAccessKey + " env var empty or unset")
+	}
+
 	return &cfg, nil
 }

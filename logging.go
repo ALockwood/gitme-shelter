@@ -2,13 +2,14 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func initLogger() {
-	loglvl := getEnv("LOG_LEVEL", "debug")
+	loglvl := strings.ToLower(getEnv("LOG_LEVEL", "debug"))
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output((zerolog.ConsoleWriter{Out: os.Stderr}))
 
