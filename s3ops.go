@@ -24,9 +24,9 @@ func initUploader(gb *gitBundler) BundleUploader {
 	s3Svc := s3.New(sess)
 
 	u := s3manager.NewUploaderWithClient(s3Svc, func(u *s3manager.Uploader) {
-		u.PartSize = 32 * 1024 * 1024 // 32MB per part
+		//u.PartSize = 128 * 1024 * 1024 // 32MB per part
 		u.LeavePartsOnError = false
-		u.Concurrency = 2 //2 go routines per upload
+		//u.Concurrency = 8 //8 go routines per upload
 	})
 
 	return BundleUploader{
@@ -57,8 +57,7 @@ func (bu *BundleUploader) uploadBundle(bundle string, filename string, keyPrefix
 		log.Error().Msgf("failed to open file %q, %v", bundle, err)
 	}
 
-	log.Trace().Msg(bundle)
-	log.Trace().Msg(filename)
+	log.Info().Msgf("Uploading %s", bundle)
 
 	res, err := bu.S3Uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(bu.GitBundler.config.S3Bucket),
