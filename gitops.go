@@ -42,12 +42,12 @@ func (gb gitBundler) makeBundles() error {
 		log.Fatal().Msg("gitBundler not initialized")
 	}
 
-	for _, repo := range gb.config.GithubRepo {
+	for i, repo := range gb.config.GithubRepo {
 		if err := gb.cloneRepo(repo.Name, repo.URI); err != nil {
 			log.Fatal().Msgf("Failed to clone repo %s", repo.Name)
 		}
 
-		if err := gb.bundleRepo(&repo); err != nil {
+		if err := gb.bundleRepo(&gb.config.GithubRepo[i]); err != nil {
 			log.Fatal().Msgf("Failed to bundle repo %s", repo.Name)
 		}
 	}
