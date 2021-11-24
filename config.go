@@ -2,10 +2,16 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"io/ioutil"
 
+	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
+
+type CommandArgs struct {
+	configFile *string
+}
 
 type Config struct {
 	S3Bucket   string       `yaml:"s3Bucket"`
@@ -15,13 +21,13 @@ type Config struct {
 
 func loadConfig() (*Config, error) {
 	//Parse command line args
-	err := parseFlags()
+	args, err := parseFlags()
 	if err != nil {
 		return nil, err
 	}
 
 	var cfg Config
-	cfgData, err := ioutil.ReadFile(*configFile)
+	cfgData, err := ioutil.ReadFile(*args.configFile)
 	if err != nil {
 		return nil, errors.New("failed to locate and/or read config file")
 	}
@@ -40,4 +46,19 @@ func loadConfig() (*Config, error) {
 	}
 
 	return &cfg, nil
+}
+
+func parseFlags() (*CommandArgs, error) {
+	cmdArgs := CommandArgs{}
+	flag.Parse()
+
+	cmdArgs.configFile = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
+
+	log.Info().Msg("Config file name: " + *cmdArgs.configFile)
+
+	if stringIsNilOrEmpty(*cmdArgs.configFile) {
+		return nil, errors.New("cfg cannot be empty")
+	}
+
+	return &cmdArgs, nil
 }
