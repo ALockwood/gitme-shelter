@@ -10,8 +10,9 @@ func TestStringisNilOrEmpty(t *testing.T) {
 	es := ""
 	ws := "   "
 
+	//TODO: I guess this could be a table struct
 	if stringIsNilOrEmpty(nes) == true {
-		t.Error("Failed to catch non-empty string")
+		t.Error("Failed to pass non-empty string")
 	}
 
 	if stringIsNilOrEmpty(es) == false {
