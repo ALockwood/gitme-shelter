@@ -10,7 +10,7 @@ import (
 )
 
 type CommandArgs struct {
-	configFile *string
+	configFile string
 }
 
 type Config struct {
@@ -27,7 +27,7 @@ func loadConfig() (*Config, error) {
 	}
 
 	var cfg Config
-	cfgData, err := ioutil.ReadFile(*args.configFile)
+	cfgData, err := ioutil.ReadFile(args.configFile)
 	if err != nil {
 		return nil, errors.New("failed to locate and/or read config file")
 	}
@@ -52,11 +52,11 @@ func parseFlags() (*CommandArgs, error) {
 	cmdArgs := CommandArgs{}
 	flag.Parse()
 
-	cmdArgs.configFile = flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
+	cmdArgs.configFile = *flag.String("cfg", "", "YAML configuration file specifying Github repos to be backed up and backup target.")
 
-	log.Info().Msg("Config file name: " + *cmdArgs.configFile)
+	log.Info().Msg("Config file name: " + cmdArgs.configFile)
 
-	if stringIsNilOrEmpty(*cmdArgs.configFile) {
+	if stringIsNilOrEmpty(cmdArgs.configFile) {
 		return nil, errors.New("cfg cannot be empty")
 	}
 
