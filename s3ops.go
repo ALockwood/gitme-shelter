@@ -14,12 +14,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type BundleUploader struct {
+type S3BundleUploader struct {
 	S3Uploader *s3manager.Uploader
 	GitBundler *gitBundler
 }
 
-func initUploader(gb *gitBundler) BundleUploader {
+type BundleUploader interface {
+	UploadBundles()
+}
+
+func newUploader(gb *gitBundler) BundleUploader {
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(gb.config.AwsRegion)}))
 	s3Svc := s3.New(sess)
 
@@ -29,13 +33,13 @@ func initUploader(gb *gitBundler) BundleUploader {
 		//u.Concurrency = 8 //8 go routines per upload
 	})
 
-	return BundleUploader{
+	return &S3BundleUploader{
 		S3Uploader: u,
 		GitBundler: gb,
 	}
 }
 
-func (bu *BundleUploader) UploadBundles() {
+func (bu *S3BundleUploader) UploadBundles() {
 	var wg sync.WaitGroup
 	t := time.Now().UTC()
 	keyPfx := fmt.Sprintf("%d-%02d-%02d/%02d.%02d/", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
@@ -49,7 +53,7 @@ func (bu *BundleUploader) UploadBundles() {
 	wg.Wait()
 }
 
-func (bu *BundleUploader) uploadBundle(bundle string, filename string, keyPrefix string, wg *sync.WaitGroup) {
+func (bu *S3BundleUploader) uploadBundle(bundle string, filename string, keyPrefix string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	b, err := os.Open(bundle)

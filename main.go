@@ -22,10 +22,11 @@ func main() {
 
 	gb := newGitBundler(conf, tmpdir)
 	gb.makeBundles()
+
 	//	log.Debug().Msgf("%+v", gb.config.GithubRepo)
 
 	//	upload to S3
-	u := initUploader(gb)
+	u := newUploader(gb.bundler())
 	u.UploadBundles()
 
 	//remove working dir

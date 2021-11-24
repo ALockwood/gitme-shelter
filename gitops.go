@@ -21,7 +21,12 @@ type gitBundler struct {
 	config  *Config
 }
 
-func newGitBundler(cfg *Config, workingDir string) *gitBundler {
+type GithubRepoBundler interface {
+	makeBundles() error
+	bundler() *gitBundler
+}
+
+func newGitBundler(cfg *Config, workingDir string) GithubRepoBundler {
 	return &gitBundler{
 		gitPath: getGitPath(),
 		workDir: workingDir,
@@ -37,7 +42,7 @@ func getGitPath() string {
 	return gitPath
 }
 
-func (gb gitBundler) makeBundles() error {
+func (gb *gitBundler) makeBundles() error {
 	if stringIsNilOrEmpty(gb.gitPath) || gb.config == nil || stringIsNilOrEmpty(gb.workDir) {
 		log.Fatal().Msg("gitBundler not initialized")
 	}
@@ -55,7 +60,11 @@ func (gb gitBundler) makeBundles() error {
 	return nil
 }
 
-func (gb gitBundler) cloneRepo(name string, uri string) error {
+func (gb *gitBundler) bundler() *gitBundler {
+	return gb
+}
+
+func (gb *gitBundler) cloneRepo(name string, uri string) error {
 	log.Debug().Msgf("Cloning repo %s", name)
 
 	var out bytes.Buffer
@@ -78,7 +87,7 @@ func (gb gitBundler) cloneRepo(name string, uri string) error {
 	return nil
 }
 
-func (gb gitBundler) bundleRepo(r *githubRepo) error {
+func (gb *gitBundler) bundleRepo(r *githubRepo) error {
 	log.Debug().Msgf("Bundling repo %s", r.Name)
 
 	var out bytes.Buffer
