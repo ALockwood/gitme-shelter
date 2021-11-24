@@ -54,11 +54,10 @@ func parseFlags() (*CommandArgs, error) {
 	}
 	flag.Parse()
 
-	log.Info().Msg("Config file name: " + *cmdArgs.configFile)
-
 	if stringIsNilOrEmpty(*cmdArgs.configFile) {
 		return nil, errors.New("cfg cannot be empty")
 	}
+	log.Info().Msgf("Config file name: %s", *cmdArgs.configFile)
 
 	return &cmdArgs, nil
 }
