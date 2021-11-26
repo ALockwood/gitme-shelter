@@ -47,13 +47,13 @@ func main() {
 	}
 	log.Info().Msgf("Running with working dir %s", tmpdir)
 
-	gb := newGitBundler(conf, tmpdir)
+	gb := newGitBundler(&conf.GithubRepo, tmpdir)
 	gb.makeBundles()
 
 	//	log.Debug().Msgf("%+v", gb.config.GithubRepo)
 
 	//	upload to S3
-	u := newUploader(gb.bundler())
+	u := newUploader(gb.bundler(), conf)
 	u.UploadBundles()
 
 	//remove working dir

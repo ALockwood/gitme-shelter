@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type githubRepo struct {
+type gitRepo struct {
 	Name          string `yaml:"name"`
 	URI           string `yaml:"uri"`
 	TempDirectory string
@@ -16,9 +16,9 @@ type githubRepo struct {
 }
 
 type gitBundler struct {
-	gitPath string
-	workDir string
-	config  *Config
+	gitPath  string
+	workDir  string
+	gitRepos *[]gitRepo
 }
 
 type GithubRepoBundler interface {
@@ -26,34 +26,38 @@ type GithubRepoBundler interface {
 	bundler() *gitBundler
 }
 
-func newGitBundler(cfg *Config, workingDir string) GithubRepoBundler {
-	return &gitBundler{
-		gitPath: getGitPath(),
-		workDir: workingDir,
-		config:  cfg}
-}
-
-func getGitPath() string {
+func newGitBundler(gitRepo *[]gitRepo, workingDir string) GithubRepoBundler {
 	gitPath, err := exec.LookPath("git")
 	if err != nil {
-		log.Fatal().Msg("Failed to locat git. Is git installed?")
+		log.Fatal().Msg("Failed to locate git. Is git installed?")
 	}
 
-	return gitPath
+	return &gitBundler{
+		gitPath:  gitPath,
+		workDir:  workingDir,
+		gitRepos: gitRepo}
 }
 
 func (gb *gitBundler) makeBundles() error {
-	if stringIsNilOrEmpty(gb.gitPath) || gb.config == nil || stringIsNilOrEmpty(gb.workDir) {
+	if stringIsNilOrEmpty(gb.gitPath) || gb.gitRepos == nil || stringIsNilOrEmpty(gb.workDir) {
 		log.Fatal().Msg("gitBundler not initialized")
 	}
 
-	for i, repo := range gb.config.GithubRepo {
-		if err := gb.cloneRepo(repo.Name, repo.URI); err != nil {
-			log.Fatal().Msgf("Failed to clone repo %s", repo.Name)
+	//Using range here felt odd as it's copying the values which I would than assign back.
+	//ex:
+	// i , r + range *gb.gitRepos {
+	// ...
+	// (*gb.gitRepos)[i] = r
+	// }
+	//I suspect what I'm doing is stupid. I just don't know how to do correctly/idiomatically
+	for i := range *gb.gitRepos {
+		r := &(*gb.gitRepos)[i]
+		if err := r.cloneRepo(gb); err != nil {
+			log.Fatal().Msgf("Failed to clone repo %s", r.Name)
 		}
 
-		if err := gb.bundleRepo(&gb.config.GithubRepo[i]); err != nil {
-			log.Fatal().Msgf("Failed to bundle repo %s", repo.Name)
+		if err := r.bundleRepo(gb); err != nil {
+			log.Fatal().Msgf("Failed to bundle repo %s", r.Name)
 		}
 	}
 
@@ -64,8 +68,8 @@ func (gb *gitBundler) bundler() *gitBundler {
 	return gb
 }
 
-func (gb *gitBundler) cloneRepo(name string, uri string) error {
-	log.Debug().Msgf("Cloning repo %s", name)
+func (r *gitRepo) cloneRepo(gb *gitBundler) error {
+	log.Debug().Msgf("Cloning repo %s", r.Name)
 
 	var out bytes.Buffer
 	var errOut bytes.Buffer
@@ -73,7 +77,7 @@ func (gb *gitBundler) cloneRepo(name string, uri string) error {
 	bcmd := exec.Cmd{
 		Path:   gb.gitPath,
 		Dir:    gb.workDir,
-		Args:   []string{gb.gitPath, "clone", uri, name},
+		Args:   []string{gb.gitPath, "clone", r.URI, r.Name},
 		Stdout: &out,
 		Stderr: &errOut,
 	}
@@ -87,7 +91,7 @@ func (gb *gitBundler) cloneRepo(name string, uri string) error {
 	return nil
 }
 
-func (gb *gitBundler) bundleRepo(r *githubRepo) error {
+func (r *gitRepo) bundleRepo(gb *gitBundler) error {
 	log.Debug().Msgf("Bundling repo %s", r.Name)
 
 	var out bytes.Buffer

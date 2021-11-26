@@ -17,14 +17,15 @@ import (
 type S3BundleUploader struct {
 	S3Uploader *s3manager.Uploader
 	GitBundler *gitBundler
+	S3Bucket   string
 }
 
 type BundleUploader interface {
 	UploadBundles()
 }
 
-func newUploader(gb *gitBundler) BundleUploader {
-	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(gb.config.AwsRegion)}))
+func newUploader(gb *gitBundler, c *Config) BundleUploader {
+	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(c.AwsRegion)}))
 	s3Svc := s3.New(sess)
 
 	u := s3manager.NewUploaderWithClient(s3Svc, func(u *s3manager.Uploader) {
@@ -36,6 +37,7 @@ func newUploader(gb *gitBundler) BundleUploader {
 	return &S3BundleUploader{
 		S3Uploader: u,
 		GitBundler: gb,
+		S3Bucket:   c.S3Bucket,
 	}
 }
 
@@ -44,7 +46,7 @@ func (bu *S3BundleUploader) UploadBundles() {
 	t := time.Now().UTC()
 	keyPfx := fmt.Sprintf("%d-%02d-%02d/%02d.%02d/", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 
-	for _, repo := range bu.GitBundler.config.GithubRepo {
+	for _, repo := range *bu.GitBundler.gitRepos {
 		wg.Add(1)
 		log.Trace().Msg(repo.TempDirectory)
 		go bu.uploadBundle(filepath.Clean(filepath.Join(repo.TempDirectory, repo.BundleFile)), repo.BundleFile, keyPfx, &wg)
@@ -64,7 +66,7 @@ func (bu *S3BundleUploader) uploadBundle(bundle string, filename string, keyPref
 	log.Info().Msgf("Uploading %s", bundle)
 
 	res, err := bu.S3Uploader.Upload(&s3manager.UploadInput{
-		Bucket: aws.String(bu.GitBundler.config.S3Bucket),
+		Bucket: aws.String(bu.S3Bucket),
 		Key:    aws.String(keyPrefix + filename),
 		Body:   b,
 	})

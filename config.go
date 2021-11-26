@@ -14,9 +14,9 @@ type CommandArgs struct {
 }
 
 type Config struct {
-	S3Bucket   string       `yaml:"s3Bucket"`
-	AwsRegion  string       `yaml:"awsRegion"`
-	GithubRepo []githubRepo `yaml:"githubRepo"`
+	S3Bucket   string    `yaml:"s3Bucket"`
+	AwsRegion  string    `yaml:"awsRegion"`
+	GithubRepo []gitRepo `yaml:"githubRepo"`
 }
 
 func loadConfig() (*Config, error) {
