@@ -29,7 +29,13 @@ Your config must also contain 1 or more entries under `githubRepo` with a `name`
 ## Putting It All Together
 The most common use case is likely to be running this in a k8s cronjob, or something like that. If so, I'd recommend presenting your configuration as a volume and all the env vars via configmaps and secrets. If just running the container it might look something like this:
 ```
-docker run -e AWS_ACCESS_KEY_ID=your_key -e AWS_SECRET_ACCESS_KEY="your_secret" -e GIT_USERNAME="your_username" -e GIT_PASSWORD="your_token" -e LOG_LEVEL=info --mount type=bind,source=YOUR_CONFIG_DIR,destination=/gms/cfg gitmeshelter /gms/gitme-shelter -cfg /gms/cfg/my-secret-cfg.yaml
+docker run -e AWS_ACCESS_KEY_ID=your_key 
+    -e AWS_SECRET_ACCESS_KEY="your_secret" 
+    -e GIT_USERNAME="your_username" 
+    -e GIT_PASSWORD="your_token" 
+    -e LOG_LEVEL=info 
+    --mount type=bind,source=YOUR_CONFIG_DIR,destination=/gms/cfg 
+    gitmeshelter /gms/gitme-shelter -cfg /gms/cfg/my-secret-cfg.yaml
 ```
 
 🚨 **WARNING!** Whatever you do, DO NOT EVER check in AWS or Github secrets! 🚨
