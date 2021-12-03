@@ -27,7 +27,7 @@ Your config **must** contain 1 value for `s3Bucket` and 1 value for `awsRegion`.
 Your config must also contain 1 or more entries under `githubRepo` with a `name` and `uri`. The name is arbitrary and is used in creating the backup file. The uri should be a Github repo link (tested only with https links at this time)
 
 ## Putting It All Together
-The most common use case is likely to be running this in a k8s cronjob, or something like that. If so, I'd recommend presenting your configuration as a volume and all the env vars via configmaps and secrets. If just running the container it might look something like this:
+The most common use case is likely to be running this in a k8s cronjob or something like that. If so, you know how to use env vars via configmaps and secrets. If just running the container it might look something like this:
 ```
 docker run -e AWS_ACCESS_KEY_ID=your_key 
     -e AWS_SECRET_ACCESS_KEY="your_secret" 
