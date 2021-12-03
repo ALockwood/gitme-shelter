@@ -21,7 +21,7 @@ If you're running locally and you have aws-cli configured and git credentials co
 **GIT_PASSWORD**: Your git password (Github token). Only required if targeting private repos  
 **LOG_LEVEL**: Sets verbosity of the logs with this. Default is `debug`. Accepts: `trace,debug,warn,error`
 
-## The Config File
+## Config File
 The app needs a configuration file which, for lack of a better format, is YAML. You can see an example in `default-test.yaml` which is copied to the Docker image by default.  
 Your config **must** contain 1 value for `s3Bucket` and 1 value for `awsRegion`.  
 Your config must also contain 1 or more entries under `githubRepo` with a `name` and `uri`. The name is arbitrary and is used in creating the backup file. The uri should be a Github repo link (tested only with https links at this time)
@@ -39,3 +39,11 @@ docker run -e AWS_ACCESS_KEY_ID=your_key
 ```
 
 🚨 **WARNING!** Whatever you do, DO NOT EVER check in AWS or Github secrets! 🚨
+
+### ToDo
+- Finish tests
+- Put a limit on simultaneous uploads
+- Actually handle errors/output from upload routines
+- Clean up dependencies
+- Clean up code to allow for better substitution and extension down the road (ex. storage options)
+- Test & fix to work with git SSH access
