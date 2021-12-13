@@ -41,6 +41,7 @@ docker run -e AWS_ACCESS_KEY_ID=your_key
 🚨 **WARNING!** Whatever you do, DO NOT EVER check in AWS or Github secrets! 🚨
 
 ### ToDo
+- My interfaces are bad and I feel bad. I should do something about that.
 - Finish tests
 - Put a limit on simultaneous uploads
 - Actually handle errors/output from upload routines
