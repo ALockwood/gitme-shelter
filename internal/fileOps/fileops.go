@@ -1,4 +1,4 @@
-package main
+package fileops
 
 import (
 	"os"
@@ -9,7 +9,7 @@ import (
 )
 
 //To avoid conflicts with other runs, generate a UUID and use it to create a temp dir
-func createWorkingDir() (string, error) {
+func CreateWorkingDir() (string, error) {
 	guid := uuid.New()
 	tpath := filepath.Clean(filepath.Join(os.TempDir(), "gitmeShelter-"+guid.String()))
 
@@ -21,11 +21,11 @@ func createWorkingDir() (string, error) {
 }
 
 //Remove the directory passed in
-func removeWorkingDir(wrkdir string) error {
-	log.Debug().Msgf("Removing %s and all child objects", wrkdir)
+func RemoveWorkingDir(wrkdir string) error {
+	log.Debug().Str("workingDir", wrkdir).Msg("removing dir and all child objects")
 	if err := os.RemoveAll(wrkdir); err != nil {
 		return err
 	}
-	log.Debug().Msg("All temp files deleted")
+	log.Debug().Msg("all temp files deleted")
 	return nil
 }

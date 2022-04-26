@@ -1,10 +1,12 @@
-package main
+package configuring
 
 import (
 	"errors"
 	"flag"
 	"io/ioutil"
 
+	"github.com/ALockwood/gitme-shelter/internal/gitOps"
+	"github.com/ALockwood/gitme-shelter/pkg/helpers"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/yaml.v2"
 )
@@ -14,12 +16,12 @@ type CommandArgs struct {
 }
 
 type Config struct {
-	S3Bucket   string    `yaml:"s3Bucket"`
-	AwsRegion  string    `yaml:"awsRegion"`
-	GithubRepo []gitRepo `yaml:"githubRepo"`
+	S3Bucket   string           `yaml:"s3Bucket"`
+	AwsRegion  string           `yaml:"awsRegion"`
+	GithubRepo []gitOps.GitRepo `yaml:"githubRepo"`
 }
 
-func loadConfig() (*Config, error) {
+func LoadConfig() (*Config, error) {
 	//Parse command line args
 	args, err := parseFlags()
 	if err != nil {
@@ -37,8 +39,12 @@ func loadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	if stringIsNilOrEmpty(cfg.S3Bucket) {
+	if helpers.StringIsNilOrEmpty(cfg.S3Bucket) {
 		return nil, errors.New("failed to load S3 bucket")
+	}
+
+	if helpers.StringIsNilOrEmpty(cfg.AwsRegion) {
+		return nil, errors.New("failed to define AWS region")
 	}
 
 	if len(cfg.GithubRepo) == 0 {
@@ -54,7 +60,7 @@ func parseFlags() (*CommandArgs, error) {
 	}
 	flag.Parse()
 
-	if stringIsNilOrEmpty(*cmdArgs.configFile) {
+	if helpers.StringIsNilOrEmpty(*cmdArgs.configFile) {
 		return nil, errors.New("cfg cannot be empty")
 	}
 	log.Info().Msgf("Config file name: %s", *cmdArgs.configFile)

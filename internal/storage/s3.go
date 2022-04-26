@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	cfg "github.com/ALockwood/gitme-shelter/internal/configuring"
+	g "github.com/ALockwood/gitme-shelter/internal/gitOps"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -16,7 +18,7 @@ import (
 
 type S3BundleUploader struct {
 	S3Uploader *s3manager.Uploader
-	GitBundler *gitBundler
+	GitBundler *g.GitBundler
 	S3Bucket   string
 }
 
@@ -24,7 +26,7 @@ type BundleUploader interface {
 	UploadBundles()
 }
 
-func newUploader(gb *gitBundler, c *Config) BundleUploader {
+func NewUploader(gb *g.GitBundler, c *cfg.Config) BundleUploader {
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(c.AwsRegion)}))
 	s3Svc := s3.New(sess)
 
@@ -46,7 +48,7 @@ func (bu *S3BundleUploader) UploadBundles() {
 	t := time.Now().UTC()
 	keyPfx := fmt.Sprintf("%d-%02d-%02d/%02d.%02d/", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
 
-	for _, repo := range *bu.GitBundler.gitRepos {
+	for _, repo := range *bu.GitBundler.GitRepos {
 		wg.Add(1)
 		log.Trace().Msg(repo.TempDirectory)
 		go bu.uploadBundle(filepath.Clean(filepath.Join(repo.TempDirectory, repo.BundleFile)), repo.BundleFile, keyPfx, &wg)

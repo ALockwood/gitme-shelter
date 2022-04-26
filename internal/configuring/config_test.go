@@ -1,4 +1,4 @@
-package main
+package configuring
 
 import (
 	"flag"
@@ -33,10 +33,10 @@ func TestLoadConfig(t *testing.T) {
 	oga := os.Args
 	defer func() { os.Args = oga }()
 
-	c := "default-test.yaml"
+	c := "../../assets/default-test.yaml"
 	os.Args = []string{"", "-cfg", c} //first arg is path to executable
 
-	_, err := loadConfig()
+	_, err := LoadConfig()
 
 	if err != nil {
 		t.Fatalf("Failed to load and/or parse test config file %s", c)
