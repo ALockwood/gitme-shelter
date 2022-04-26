@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"os"
@@ -11,15 +11,15 @@ func TestStringisNilOrEmpty(t *testing.T) {
 	ws := "   "
 
 	//TODO: I guess this could be a table struct
-	if stringIsNilOrEmpty(nes) == true {
+	if StringIsNilOrEmpty(nes) == true {
 		t.Error("Failed to pass non-empty string")
 	}
 
-	if stringIsNilOrEmpty(es) == false {
+	if StringIsNilOrEmpty(es) == false {
 		t.Error("Failed to catch empty string")
 	}
 
-	if stringIsNilOrEmpty(ws) == false {
+	if StringIsNilOrEmpty(ws) == false {
 		t.Error("Failed to catch whitespace string")
 	}
 }
@@ -29,12 +29,12 @@ func TestGetEnv(t *testing.T) {
 	fb := "Sometimes I feel like an idiot. But I am an idiot, so it kinda works out."
 	v := "ODoyle rules"
 
-	if getEnv(k, fb) != fb {
+	if GetEnv(k, fb) != fb {
 		t.Errorf("Failed to get fallback env value. Or, %s actually exists in your env?!", k)
 	}
 
 	os.Setenv(k, v)
-	if getEnv(k, fb) != v {
+	if GetEnv(k, fb) != v {
 		t.Error("Failed to get preset env var")
 	}
 }

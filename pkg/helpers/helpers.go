@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"os"
@@ -6,12 +6,12 @@ import (
 )
 
 //Check if a string is nil or empty after trimming all whitespace
-func stringIsNilOrEmpty(str string) bool {
+func StringIsNilOrEmpty(str string) bool {
 	return strings.TrimSpace(str) == ""
 }
 
 // Get env var or default
-func getEnv(key, fallback string) string {
+func GetEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}

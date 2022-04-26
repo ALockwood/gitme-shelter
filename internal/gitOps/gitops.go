@@ -1,45 +1,46 @@
-package main
+package gitOps
 
 import (
 	"bytes"
 	"os/exec"
 	"path/filepath"
 
+	"github.com/ALockwood/gitme-shelter/pkg/helpers"
 	"github.com/rs/zerolog/log"
 )
 
-type gitRepo struct {
+type GitRepo struct {
 	Name          string `yaml:"name"`
 	URI           string `yaml:"uri"`
 	TempDirectory string
 	BundleFile    string
 }
 
-type gitBundler struct {
+type GitBundler struct {
 	gitPath  string
 	workDir  string
-	gitRepos *[]gitRepo
+	GitRepos *[]GitRepo
 }
 
 type GithubRepoBundler interface {
-	makeBundles() error
-	bundler() *gitBundler
+	MakeBundles() error
+	Bundler() *GitBundler
 }
 
-func newGitBundler(gitRepo *[]gitRepo, workingDir string) GithubRepoBundler {
+func NewGitBundler(gitRepo *[]GitRepo, workingDir string) GithubRepoBundler {
 	gitPath, err := exec.LookPath("git")
 	if err != nil {
 		log.Fatal().Msg("Failed to locate git. Is git installed?")
 	}
 
-	return &gitBundler{
+	return &GitBundler{
 		gitPath:  gitPath,
 		workDir:  workingDir,
-		gitRepos: gitRepo}
+		GitRepos: gitRepo}
 }
 
-func (gb *gitBundler) makeBundles() error {
-	if stringIsNilOrEmpty(gb.gitPath) || gb.gitRepos == nil || stringIsNilOrEmpty(gb.workDir) {
+func (gb *GitBundler) MakeBundles() error {
+	if helpers.StringIsNilOrEmpty(gb.gitPath) || gb.GitRepos == nil || helpers.StringIsNilOrEmpty(gb.workDir) {
 		log.Fatal().Msg("gitBundler not initialized")
 	}
 
@@ -50,8 +51,8 @@ func (gb *gitBundler) makeBundles() error {
 	// (*gb.gitRepos)[i] = r
 	// }
 	//I suspect what I'm doing is stupid. I just don't know how to do correctly/idiomatically
-	for i := range *gb.gitRepos {
-		r := &(*gb.gitRepos)[i]
+	for i := range *gb.GitRepos {
+		r := &(*gb.GitRepos)[i]
 		if err := r.cloneRepo(gb); err != nil {
 			log.Fatal().Msgf("Failed to clone repo %s", r.Name)
 		}
@@ -64,11 +65,11 @@ func (gb *gitBundler) makeBundles() error {
 	return nil
 }
 
-func (gb *gitBundler) bundler() *gitBundler {
+func (gb *GitBundler) Bundler() *GitBundler {
 	return gb
 }
 
-func (r *gitRepo) cloneRepo(gb *gitBundler) error {
+func (r *GitRepo) cloneRepo(gb *GitBundler) error {
 	log.Debug().Msgf("Cloning repo %s", r.Name)
 
 	var out bytes.Buffer
@@ -91,7 +92,7 @@ func (r *gitRepo) cloneRepo(gb *gitBundler) error {
 	return nil
 }
 
-func (r *gitRepo) bundleRepo(gb *gitBundler) error {
+func (r *GitRepo) bundleRepo(gb *GitBundler) error {
 	log.Debug().Msgf("Bundling repo %s", r.Name)
 
 	var out bytes.Buffer

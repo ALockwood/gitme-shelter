@@ -1,4 +1,4 @@
-package main
+package fileops
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreateWorkingDir(t *testing.T) {
-	s, err := createWorkingDir()
+	s, err := CreateWorkingDir()
 
 	if strings.TrimSpace(s) == "" || err != nil {
 		t.Errorf("Failed to create workdir")
@@ -18,9 +18,9 @@ func TestCreateWorkingDir(t *testing.T) {
 }
 
 func TestRemoveWorkingDir(t *testing.T) {
-	d, _ := createWorkingDir()
+	d, _ := CreateWorkingDir()
 
-	err := removeWorkingDir(d)
+	err := RemoveWorkingDir(d)
 	if err != nil {
 		t.Fatalf("Failed to delete temp working dir %s", d)
 	}
